@@ -2,7 +2,7 @@ import './style.css';
 import TileLayer from 'ol/layer/Tile';
 import { Vector } from 'ol/source';
 import OSM from 'ol/source/OSM';
-import {transform} from 'ol/proj'
+import {fromLonLat, transform} from 'ol/proj'
 import ZoomSlider from 'ol/control/ZoomSlider.js';
 import {defaults as defaultControls} from 'ol/control.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
@@ -11,10 +11,12 @@ import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import View from 'ol/View.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
-import {getBottomLeft, getHeight, getWidth} from 'ol/extent.js';
+import {getBottomLeft, getCenter, getHeight, getWidth} from 'ol/extent.js';
 import {toContext} from 'ol/render.js';
 import { createDefaultStyle } from 'ol/style/Style'
 import Feature from 'ol/Feature';
+import Overlay from 'ol/Overlay';
+import { Point } from 'ol/geom';
 
 // vectorLayer.getSource().on('addfeature', function (event) {
 //   const feature = event.feature;
@@ -83,9 +85,26 @@ import Feature from 'ol/Feature';
   
 // });
 
+let userPosition = [0,0]
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition((pos)=> {
+    const userPos = [pos.coords.longitude, pos.coords.latitude]
+    map.addLayer(new VectorLayer({
+      source: new VectorSource({
+        features: [
+          new Feature({
+            geometry: new Point(fromLonLat(userPos))
+          })
+      ]
+      })
 
-
-
+    }))
+    view.setCenter(transform(userPos, 'EPSG:4326', 'EPSG:3857'))
+    view.setZoom(5)
+  });
+} else {
+  x.innerHTML = "Geolocation is not supported by this browser.";
+}
 const fill = new Fill()
 const defaultStroke = new Stroke({
   color: '#3399CC',
@@ -152,20 +171,52 @@ const vectorLayer = new VectorLayer({
 //     'https://flagcdn.com/w320/' + feature.get('iso_a2').toLowerCase() + '.png';
 // });
 
+const container = document.querySelector('#popup-container')
+const content  = document.querySelector('#popup-content')
+const closer  = document.querySelector('#popup-closer')
+const countryName = document.querySelector("#name")
+const countryFlag = document.querySelector("#flag-emoji")
+const countryHauptstadt = document.querySelector("#hauptstadt")
+const countrySprache = document.querySelector("#sprache")
+const countryWaehrung = document.querySelector("#waehrung")
+const countryKontinent = document.querySelector("#kontient")
+const countryFakt = document.querySelector("#fakt")
+var overlay = new Overlay({
+  element: container,
+  autoPan: true,
+  autoPanAnimation: {
+    duration: 250,
+  },
+});
+
+closer.onclick = function () {
+  overlay.setPosition(undefined);
+  closer.blur();
+  currentCountry.setStyle(defaultStyle)
+  currentCountry = dummyFeature
+  return false;
+};
+
+var clicks = 0
+const view = new View({
+  center: userPosition,
+  zoom: 3,
+  extent: [-20000000,-20000000, 20000000, 20000000],
+})
 const map = new Map({
   layers: [vectorLayer],
   target: 'map',
-  view: new View({
-    center: [0, 0],
-    zoom: 1,
-    extent: [-20000000,-20000000, 20000000, 20000000],
-  }),
+  view: view,
+  overlays: [overlay]
 });
-
-var currentCountry = new Feature()
+const dummyFeature = new Feature()
+var currentCountry = dummyFeature
+let currentCountryData = {}
 
 map.on('click', function(e){
-  map.forEachFeatureAtPixel(e.pixel, function(feature, layer){
+  clicks++;
+  if(clicks > 10) {vectorLayer.getSource().changed();clicks = 0}
+  map.forEachFeatureAtPixel(e.pixel, async function(feature, layer){
     currentCountry.setStyle(defaultStyle)
     currentCountry = feature
     console.log(feature);
@@ -178,4 +229,21 @@ map.on('click', function(e){
   };
   img.src =
     'https://flagcdn.com/w320/' + feature.get('iso_a2').toLowerCase() + '.png';
-  })})
+  const url = "https://restcountries.com/v3.1/alpha/" + feature.get('iso_a2').toLowerCase()
+  console.log(url)
+  const res = await fetch(url,{method: "GET", headers:{
+    'Accept': 'application/json'
+  }})
+  const data = await res.json()
+  currentCountryData = data[0]
+  console.log(currentCountryData)
+  countryName.textContent = feature.get('name')
+  countryHauptstadt.textContent = currentCountryData['capital'][0]
+  countrySprache.textContent = currentCountryData['languages'][Object.keys(currentCountryData['languages'])[0]]
+  countryWaehrung.textContent = currentCountryData['currencies'][Object.keys(currentCountryData['currencies'])[0]]['name'] + " " + currentCountryData['currencies'][Object.keys(currentCountryData['currencies'])[0]]['symbol']
+  countryKontinent.textContent = currentCountryData['continents'][0]
+  countryFakt.textContent = 
+  overlay.setPosition(getCenter(feature.getGeometry().getExtent()))
+  
+  })
+})
