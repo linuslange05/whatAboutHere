@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "create-ol-app": "^1.1.0",
+    "ol": "^9.1.0",
+    "world-geojson": "^3.0"
+  }
+}
