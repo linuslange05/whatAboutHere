@@ -3,10 +3,64 @@
 html, body {
   margin: 0;
   height: 100%;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
 }
-#map {
+ #map {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  /*top: 0;
+  bottom: 0;*/
+  height: 85vh;
   width: 100%;
+} 
+#popup-container{
+  cursor: '';
+  /* height: 50vh; */
+  width: 30vw;
+  border-radius: 5vh;
+  padding: 3vh;
 }
+#popup-closer{
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: x-large;
+  position: absolute;
+  right: 3vh;
+}
+h3{
+  display:inline;
+}
+p{display: inline;}
+header{
+  max-height: 10vh;
+  display: flex;
+  justify-content: center;
+  /* line-height: 2em; */
+}
+h1{
+  margin: 2vh;
+  display: inline-block
+
+}
+footer{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#footer-text{
+  position: absolute;
+  bottom: 0;
+  margin: 0.5vh;
+  /* display: flex; */
+  /* text-align: center; */
+}
+.half:before{
+  content: ''attr(cont)'';
+  color: #f0f000;
+  height: 0.63em;
+  overflow: hidden;
+  position: absolute;
+}
+

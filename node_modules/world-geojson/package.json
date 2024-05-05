@@ -1,0 +1,30 @@
+{
+  "name": "world-geojson",
+  "description": "GeoJson for all the countries, areas (regions) and some states.",
+  "license": "GPL-3.0-or-later",
+  "repository": "git://github.com/georgique/world-geojson.git",
+  "version": "3.1.0",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "areas",
+    "countries",
+    "states",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "grunt": "~1.5.3",
+    "grunt-contrib-copy": "~1.0.0",
+    "grunt-shell": "~4.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "grunt build",
+    "release": "grunt release"
+  }
+}

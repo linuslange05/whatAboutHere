@@ -1,11 +1,10 @@
-rest countries api nach klick abfragen, infos auf pop up displayen
 schönere styles:
-- color palette
-- border thickness
 - pop up design
 - cursor animieren
 - animation zu land hin
-get country of user
-marker auf hauptstadt
-?google street view?
-?chatgpt nach interessantem fakt fragen?
+
+ideen:
+google street view
+alle großstädte displayen
+population visualisieren
+
